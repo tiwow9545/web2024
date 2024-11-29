@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ผลการทดสอบ</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+
+<div class="container mt-5 p-5">
+  <h2>ผลการทดสอบ</h2>
+  <div id="resultBox"></div>
+</div>
+
+<script>
+  $(function(){
+    
+    var answers = JSON.parse(localStorage.getItem("quizAnswers"));
+    
+    if (answers === null || answers.length === 0) {
+      $("#resultBox").html("<p>ไม่พบข้อมูลคำตอบ โปรดทำแบบทดสอบก่อน</p>");
+      return;
+    }
+
+    
+    var quizlist = [
+      { "answer": 4 },
+      { "answer": 3 },
+      { "answer": 3 },
+      { "answer": 4 },
+      { "answer": 2 },
+      { "answer": 3 },
+      { "answer": 1 },
+      { "answer": 5 },
+      { "answer": 3 },
+      { "answer": 5 },
+      { "answer": 3 },
+      { "answer": 4 },
+      { "answer": 4 },
+      { "answer": 2 },
+      { "answer": 1 },
+      { "answer": 4 },
+      { "answer": 3 },
+      { "answer": 2 },
+      { "answer": 2 },
+      { "answer": 2 }
+    ];
+
+    var correctCount = 0;
+    var resultHTML = "<h3>คำตอบของคุณ:</h3><ul>";
+
+    answers.forEach(function(answer, index){
+      if (parseInt(answer) === quizlist[index].answer) {
+        correctCount++;
+        resultHTML += "<li>ข้อที่ " + (index + 1) + ": คำตอบถูก</li>";
+      } else {
+        resultHTML += "<li>ข้อที่ " + (index + 1) + ": คำตอบผิด</li>";
+      }
+    });
+
+   
+    resultHTML += "</ul>";
+    resultHTML += "<p>คะแนนที่ได้: " + correctCount + " จาก " + quizlist.length + " ข้อ</p>";
+
+    $("#resultBox").html(resultHTML);
+  });
+</script>
+
+</body>
+</html>
