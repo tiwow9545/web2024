@@ -18,7 +18,7 @@
     <div id="app">
         <v-app>
             <v-container>
-                <!-- หน้าแนะนำ -->
+
                 <div v-if="page === 1" class="text-center">
                     <h1>แบบทดสอบวิชาสังคม</h1>
                     <p>ทดสอบความรู้วิชาสังคมระดับ ม.3</p>
@@ -27,7 +27,7 @@
                     </v-btn>
                 </div>
 
-                <!-- หน้าแบบทดสอบ -->
+                
                 <div v-if="page === 2">
                     <h2>แบบทดสอบ</h2>
                     <div v-for="(question, index) in questions" :key="index" class="my-4">
@@ -49,7 +49,7 @@
                     </v-btn>
                 </div>
 
-                <!-- หน้าผลลัพธ์ -->
+                
                 <div v-if="page === 3" class="text-center">
                     <h1>ผลการทดสอบ</h1>
                     <h2>คุณได้คะแนน {{ score }}/20</h2>
