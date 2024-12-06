@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แบบทดสอบวิชาสังคม</title>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font/css/materialdesignicons.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/vuetify@3.7.4/dist/vuetify.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/vuetify@3.7.4/dist/vuetify.min.js"></script>
+    <style>
+        body {
+            font-family: 'Kanit', sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <v-app>
+            <v-container>
+                <!-- หน้าแนะนำ -->
+                <div v-if="page === 1" class="text-center">
+                    <h1>แบบทดสอบวิชาสังคม</h1>
+                    <p>ทดสอบความรู้วิชาสังคมระดับ ม.3</p>
+                    <v-btn color="primary" @click="startQuiz">
+                        <v-icon left>mdi-play-circle</v-icon>เริ่มทำแบบทดสอบ
+                    </v-btn>
+                </div>
+
+                <!-- หน้าแบบทดสอบ -->
+                <div v-if="page === 2">
+                    <h2>แบบทดสอบ</h2>
+                    <div v-for="(question, index) in questions" :key="index" class="my-4">
+                        <h4>ข้อ {{ index + 1 }}: {{ question.title }}</h4>
+                        <v-radio-group v-model="answers[index]" row>
+                            <v-radio
+                                v-for="(option, i) in question.options"
+                                :key="i"
+                                :label="option"
+                                :value="i + 1">
+                            </v-radio>
+                        </v-radio-group>
+                    </div>
+                    <v-btn
+                        :disabled="!isComplete"
+                        color="success"
+                        @click="checkAnswers">
+                        <v-icon left>mdi-check</v-icon>ตรวจคำตอบ
+                    </v-btn>
+                </div>
+
+                <!-- หน้าผลลัพธ์ -->
+                <div v-if="page === 3" class="text-center">
+                    <h1>ผลการทดสอบ</h1>
+                    <h2>คุณได้คะแนน {{ score }}/20</h2>
+                    <v-btn color="primary" @click="restartQuiz">
+                        <v-icon left>mdi-replay</v-icon>เริ่มใหม่
+                    </v-btn>
+                </div>
+            </v-container>
+        </v-app>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        const { createVuetify } = Vuetify;
+
+        const vuetify = createVuetify();
+
+        const quizData = [
+            { title: "ประเทศไทยมีกี่ฤดู?", options: ["2 ฤดู", "3 ฤดู", "4 ฤดู", "5 ฤดู"], answer: 2 },
+            { title: "ศาสนาพุทธถือกำเนิดขึ้นที่ใด?", options: ["เนปาล", "อินเดีย", "ศรีลังกา", "ไทย"], answer: 2 },
+            { title: "เมืองหลวงของประเทศไทยคืออะไร?", options: ["เชียงใหม่", "กรุงเทพ", "ภูเก็ต", "อยุธยา"], answer: 2 },
+            { title: "ศาสดาของศาสนาอิสลามคือใคร?", options: ["พระพุทธเจ้า", "พระเยซู", "ศาสดามูฮัมหมัด", "พระแม่มารี"], answer: 3 },
+            { title: "ประเพณีลอยกระทงเกี่ยวข้องกับอะไร?", options: ["วันขึ้นปีใหม่", "การขอขมาแม่คงคา", "วันสงกรานต์", "วันวิสาขบูชา"], answer: 2 },
+            { title: "ภาษาราชการของประเทศไทยคืออะไร?", options: ["ภาษาอังกฤษ", "ภาษาจีน", "ภาษาไทย", "ภาษาลาว"], answer: 3 },
+            { title: "การปกครองของประเทศไทยเป็นแบบใด?", options: ["สมบูรณาญาสิทธิราชย์", "สาธารณรัฐ", "ประชาธิปไตย", "เผด็จการ"], answer: 3 },
+            { title: "ธงชาติไทยมีสีทั้งหมดกี่สี?", options: ["1 สี", "2 สี", "3 สี", "4 สี"], answer: 3 },
+            { title: "ใครคือบุคคลสำคัญในการก่อตั้งกรุงรัตนโกสินทร์?", options: ["พระเจ้าตากสิน", "รัชกาลที่ 1", "พระนเรศวร", "พระสุริโยทัย"], answer: 2 },
+            { title: "แม่น้ำที่ยาวที่สุดในประเทศไทยคือ?", options: ["แม่น้ำเจ้าพระยา", "แม่น้ำโขง", "แม่น้ำปิง", "แม่น้ำยม"], answer: 2 },
+            { title: "จังหวัดที่มีประชากรมากที่สุดในประเทศไทยคือ?", options: ["กรุงเทพมหานคร", "เชียงใหม่", "นครราชสีมา", "ชลบุรี"], answer: 1 },
+            { title: "พิธีกรรมใดเป็นสัญลักษณ์ของพระพุทธศาสนา?", options: ["การสวดมนต์", "การลอยกระทง", "การทำบุญ", "การนั่งสมาธิ"], answer: 4 },
+            { title: "ประชากรส่วนใหญ่ของประเทศไทยนับถือศาสนาใด?", options: ["ศาสนาคริสต์", "ศาสนาอิสลาม", "ศาสนาพุทธ", "ศาสนาฮินดู"], answer: 3 },
+            { title: "ประเพณีสงกรานต์ตรงกับเดือนอะไร?", options: ["มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน"], answer: 2 },
+            { title: "ภูเขาที่สูงที่สุดในประเทศไทยคือ?", options: ["ดอยสุเทพ", "ดอยอินทนนท์", "ดอยหลวงเชียงดาว", "ดอยผ้าห่มปก"], answer: 2 },
+            { title: "อาเซียนมีกี่ประเทศ?", options: ["8 ประเทศ", "9 ประเทศ", "10 ประเทศ", "11 ประเทศ"], answer: 3 },
+            { title: "คำขวัญของประเทศไทยคืออะไร?", options: ["ในน้ำมีปลา ในนามีข้าว", "แผ่นดินทอง", "บ้านเมืองดี", "สยามเมืองยิ้ม"], answer: 4 },
+            { title: "คำว่า 'นกขมิ้น' หมายถึงอะไรในเพลงชาติไทย?", options: ["สัตว์ในตำนาน", "การย้ายถิ่นฐาน", "ความสุข", "ธรรมชาติ"], answer: 2 },
+            { title: "การปกครองแบบประชาธิปไตยมีหลักสำคัญข้อใด?", options: ["เสรีภาพ", "ความเท่าเทียม", "ความยุติธรรม", "ทั้งหมด"], answer: 4 },
+            { title: "วันสำคัญใดเป็นวันชาติของประเทศไทย?", options: ["วันสงกรานต์", "วันพ่อแห่งชาติ", "วันจักรี", "วันเฉลิมพระชนมพรรษา"], answer: 2 }
+        ];
+
+        createApp({
+            data() {
+                return {
+                    page: 1,
+                    questions: [],
+                    answers: [],
+                    score: 0,
+                };
+            },
+            computed: {
+                isComplete() {
+                    return this.answers.length === this.questions.length &&
+                        this.answers.every(ans => ans !== undefined);
+                },
+            },
+            methods: {
+                startQuiz() {
+                    this.questions = quizData;
+                    this.answers = new Array(this.questions.length).fill(undefined);
+                    this.page = 2;
+                },
+                checkAnswers() {
+                    this.score = this.questions.reduce((acc, question, i) => {
+                        return acc + (this.answers[i] === question.answer ? 1 : 0);
+                    }, 0);
+                    this.page = 3;
+                },
+                restartQuiz() {
+                    this.page = 1;
+                    this.questions = [];
+                    this.answers = [];
+                    this.score = 0;
+                },
+            },
+        }).use(vuetify).mount('#app');
+    </script>
+</body>
+</html>
